@@ -1,0 +1,206 @@
+@startuml mydiagram
+left to right direction
+skinparam ClassAttributeIconSize 0
+
+abstract class User {
+  -name: string
+  -userID: string
+  +{abstract} placeOrder(order: Order)
+  +{abstract} processOrder(order: Order)
+}
+
+class Employee extends User {
+  +placeOrder(order: Order)
+  +processPayment(order: Order)
+  +shipOrder(order: Order)
+}
+
+class Customer extends User {
+  +placeOrder(order: Order)
+  +makePayment(order: Order)
+}
+
+interface OrderProcessor {
+  +processOrder(order: Order)
+  +cancelOrder(order: Order)
+}
+
+class Client implements OrderProcessor {
+  +placeOrder(order: Order)
+  +makePayment(order: Order)
+  +processOrder(order: Order)
+  +cancelOrder(order: Order)
+  -clientID: string
+}
+
+class Item {
+  -name: string
+  -price: double
+  -quantity: int
+}
+
+class Order {
+  +getOrderID(): string
+  +getItems(): vector<Item>
+  +getTotalCost(): double
+  +setDelivery(delivery: Delivery)
+  -orderID: string
+  -items: vector<Item>
+  -delivery: Delivery
+}
+
+class Delivery {
+  +getDeliveryMethod(): string
+  +getDeliveryAddress(): string
+  +setPickupPoint(pickupPoint: PickupPoint)
+  -deliveryID: string
+  -deliveryMethod: string
+  -deliveryCost: double
+  -deliveryAddress: string
+  -pickupPoint: PickupPoint
+}
+
+class PickupPoint {
+  +getAddress(): string
+  +getPhoneNumber(): string
+  -pickupPointID: string
+  -address: string
+  -phoneNumber: string
+}
+
+class Application {
+  -frontend: Frontend
+  -backend: Backend
+  +run()
+  +initialize()
+  +shutdown()
+}
+
+class Frontend {
+  +mainMenu()
+  +displayUserInterface()
+  +handleUserInput()
+  +updateView()
+  +renderComponent(componentName: string)
+}
+
+class Backend {
+  -database: Database
+  +calculateTotal(order: Order): double
+}
+
+class Database {
+  -products: List<Product>
+  
+  +createProduct(product: Product): boolean
+  +readProduct(productID: string): Product
+  +updateProduct(product: Product): boolean
+  +deleteProduct(productID: string): boolean
+  
+  +listProducts(): List<Product>
+  +searchProductByName(name: string): List<Product>
+  +listProductsByCategory(categoryID: string): List<Product>
+}
+
+class Product {
+  -productID: string
+  -name: string
+  -price: double
+  -description: string
+  -categoryID: string
+  -stockQuantity: int
+  
+  +getProductDetails(): string
+  +isInStock(): boolean
+}
+
+class Category {
+  -categoryID: string
+  -name: string
+  -description: string
+  -parentCategoryID: string
+}
+
+class PriceChangeLog {
+  -itemID: string
+  -oldPrice: double
+  -newPrice: double
+  -changeDate: date
+  +logPriceChange(item: Item, oldPrice: double, newPrice: double)
+  +getPriceHistory(itemID: string): List<PriceChange>
+  +generatePriceChangeReport()
+}
+
+class ProductCatalog {
+  -products: List<Product>
+  -categories: List<Category>
+  
+  +addProduct(product: Product): boolean
+  +removeProduct(productID: string): boolean
+  
+  +getProductById(productID: string): Product
+  +getProductsByCategory(categoryID: string): List<Product>
+  
+  +getTotalProductCount(): int
+}
+
+
+
+Employee "1" -- "0..*" Order
+Customer "1" -- "1..*" Order
+Order "1" -- "0..*" Item
+Order "1" -- "1" Delivery 
+Delivery "1" -- "1" PickupPoint
+Client "1" -- "0..*" Order
+Application "1" o.. "1" Frontend
+Application "1" o.. "1" Backend
+Frontend "1" .. "1" Backend
+Backend "1" .. "1" Database
+Item "1" -- "0..*" PriceChangeLog
+Database "1" -- "0..*" Item
+
+Database "1" -- "1" ProductCatalog 
+ProductCatalog "1" o-- "*" Product 
+Category "1" o-- "*" Product 
+Product "*" -- "1" Category 
+
+interface IStack<T> {
+  +{abstract} push(item: T)
+  +{abstract} pop(): T
+  +{abstract} top(): T
+  +{abstract} isEmpty(): boolean
+  +{abstract} size(): int
+}
+
+class OrderStack implements IStack {
+  -orders: List<Order>
+  
+  +push(order: Order)
+  +pop(): Order
+  +top(): Order
+  +isEmpty(): boolean
+  +size(): int
+}
+
+class ItemStack implements IStack {
+  -items: List<Item>
+  
+  +push(item: Item)
+  +pop(): Item
+  +top(): Item
+  +isEmpty(): boolean
+  +size(): int
+}
+
+class StackOperations {
+  +reverse(stack: IStack): IStack
+  +merge(stack1: IStack, stack2: IStack): IStack
+  +copyStack(originalStack: IStack): IStack
+}
+
+StackOperations ..> IStack : uses
+
+Order "1" -- "0..*" OrderStack
+Item "1" -- "0..*" ItemStack
+
+@enduml
